@@ -18,13 +18,13 @@
     <ClCompile Include="LSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LSYSTEMPlugin.C">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="vec.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BreakingPointPlugin.C">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -32,13 +32,13 @@
     <ClInclude Include="LSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LSYSTEMPlugin.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="matrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="vec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BreakingPointPlugin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

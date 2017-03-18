@@ -18,7 +18,7 @@
 
 
 #include <limits.h>
-#include "LSYSTEMPlugin.h"
+#include "BreakingPointPlugin.h"
 using namespace HDK_Sample;
 
 //
@@ -39,13 +39,13 @@ void
 newSopOperator(OP_OperatorTable *table)
 {
     table->addOperator(
-	    new OP_Operator("CusLsystem",			// Internal name
-			    "BreakingPoint",				// UI name
-			     SOP_Lsystem::myConstructor,	// How to build the SOP
-			     SOP_Lsystem::myTemplateList,	// My parameters
+	    new OP_Operator("CustomBP",					// Internal name
+			    "BreakingPoint",					// UI name
+			     SOP_BreakingPoint::myConstructor,	// How to build the SOP
+			     SOP_BreakingPoint::myTemplateList,	// My parameters
 			     0,				// Min # of sources
 			     0,				// Max # of sources
-			     SOP_Lsystem::myVariables,	// Local variables
+			     SOP_BreakingPoint::myVariables,	// Local variables
 			     OP_FLAG_GENERATOR)		// Flag it as generator
 	    );
 }
@@ -55,10 +55,8 @@ newSopOperator(OP_OperatorTable *table)
 //You need to declare your parameters here
 //Example to declare a variable for angle you can do like this :
 //static PRM_Name		angleName("angle", "Angle");
-static PRM_Name angleName("angle", "Angle");
-static PRM_Name stepName("step", "Step");
-static PRM_Name iterationsName("iterations", "Iterations");
-static PRM_Name grammarName("grammar", "Grammar");
+static PRM_Name forceName("force", "Impact Force");
+static PRM_Name piecesName("pieces", "Number of Pieces");
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //				     ^^^^^^^^    ^^^^^^^^^^^^^^^
@@ -70,27 +68,22 @@ static PRM_Name grammarName("grammar", "Grammar");
 // For example : If you are declaring the inital value for the angle parameter
 // static PRM_Default angleDefault(30.0);	
 
-static PRM_Default angleDefault(30.0);
-static PRM_Range angleRange(PRM_RANGE_UI, 0.0, PRM_RANGE_UI, 360.0);
-static PRM_Default stepDefault(1.0);
-static PRM_Range stepRange(PRM_RANGE_UI, 1.0, PRM_RANGE_UI, 10.0);
-static PRM_Default iterationsDefault(1);
-static PRM_Default grammarDefault(1, "F\nF->F[+F]F[-F]");
+static PRM_Default forceDefault(30.0);
+static PRM_Range forceRange(PRM_RANGE_UI, 0.0, PRM_RANGE_UI, 500.0);
+static PRM_Default piecesDefault(1);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
 PRM_Template
-SOP_Lsystem::myTemplateList[] = {
+SOP_BreakingPoint::myTemplateList[] = {
 	// PUT YOUR CODE HERE
 	// You now need to fill this template with your parameter name and their default value
 	// EXAMPLE : For the angle parameter this is how you should add into the template
 	// PRM_Template(PRM_FLT,	PRM_Template::PRM_EXPORT_MIN, 1, &angleName, &angleDefault, 0),
 	// Similarly add all the other parameters in the template format here
-		PRM_Template(PRM_FLT, PRM_Template::PRM_EXPORT_MIN, 1, &angleName, &angleDefault, 0, &angleRange),
-		PRM_Template(PRM_FLT, PRM_Template::PRM_EXPORT_MIN, 1, &stepName, &stepDefault, 0, &stepRange),
-		PRM_Template(PRM_INT, PRM_Template::PRM_EXPORT_MIN, 1, &iterationsName, &iterationsDefault, 0),
-		PRM_Template(PRM_STRING, PRM_Template::PRM_EXPORT_MIN, 1, &grammarName, &grammarDefault, 0),
+		PRM_Template(PRM_FLT, PRM_Template::PRM_EXPORT_MIN, 1, &forceName, &forceDefault, 0, &forceRange),
+		PRM_Template(PRM_INT, PRM_Template::PRM_EXPORT_MIN, 1, &piecesName, &piecesDefault, 0),
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -105,14 +98,14 @@ enum {
 };
 
 CH_LocalVariable
-SOP_Lsystem::myVariables[] = {
+SOP_BreakingPoint::myVariables[] = {
     { "PT",	VAR_PT, 0 },		// The table provides a mapping
     { "NPT",	VAR_NPT, 0 },		// from text string to integer token
     { 0, 0, 0 },
 };
 
 bool
-SOP_Lsystem::evalVariableValue(fpreal &val, int index, int thread)
+SOP_BreakingPoint::evalVariableValue(fpreal &val, int index, int thread)
 {
     // myCurrPoint will be negative when we're not cooking so only try to
     // handle the local variables when we have a valid myCurrPoint index.
@@ -137,27 +130,27 @@ SOP_Lsystem::evalVariableValue(fpreal &val, int index, int thread)
 }
 
 OP_Node *
-SOP_Lsystem::myConstructor(OP_Network *net, const char *name, OP_Operator *op)
+SOP_BreakingPoint::myConstructor(OP_Network *net, const char *name, OP_Operator *op)
 {
-    return new SOP_Lsystem(net, name, op);
+    return new SOP_BreakingPoint(net, name, op);
 }
 
-SOP_Lsystem::SOP_Lsystem(OP_Network *net, const char *name, OP_Operator *op)
+SOP_BreakingPoint::SOP_BreakingPoint(OP_Network *net, const char *name, OP_Operator *op)
 	: SOP_Node(net, name, op)
 {
     myCurrPoint = -1;	// To prevent garbage values from being returned
 }
 
-SOP_Lsystem::~SOP_Lsystem() {}
+SOP_BreakingPoint::~SOP_BreakingPoint() {}
 
 unsigned
-SOP_Lsystem::disableParms()
+SOP_BreakingPoint::disableParms()
 {
     return 0;
 }
 
 OP_ERROR
-SOP_Lsystem::cookMySop(OP_Context &context)
+SOP_BreakingPoint::cookMySop(OP_Context &context)
 {
 	fpreal		 now = context.getTime();
 
@@ -168,13 +161,8 @@ SOP_Lsystem::cookMySop(OP_Context &context)
 	//    angle = ANGLE(now)       
     //    NOTE : ANGLE is a function that you need to use and it is declared in the header file to update your values instantly while cooking 
 	LSystem myplant;
-	float angle = ANGLE(now);
-	float step = STEP(now);
-	int iterations = ITERATIONS(now);
-	UT_String grammar = UT_String();
-	GRAMMAR(grammar, now);
-
-
+	float force = FORCE(now);
+	int pieces = PIECES(now);
 
 	///////////////////////////////////////////////////////////////////////////
 
@@ -184,9 +172,9 @@ SOP_Lsystem::cookMySop(OP_Context &context)
     // myplant.loadProgramFromString("F\nF->F[+F]F[-F]";  
     // myplant.setDefaultAngle(30.0f);
     // myplant.setDefaultStep(1.0f);
-	myplant.loadProgramFromString(grammar.toStdString());
+	/*myplant.loadProgramFromString(grammar.toStdString());
 	myplant.setDefaultAngle(angle);
-	myplant.setDefaultStep(step);
+	myplant.setDefaultStep(step);*/
 	
 
 
@@ -196,8 +184,8 @@ SOP_Lsystem::cookMySop(OP_Context &context)
 	// You the need call the below function for all the genrations ,so that the end points points will be
 	// stored in the branches vector , you need to declare them first
 
-	std::vector<std::pair<vec3, vec3>> branches;
-	myplant.process(iterations, branches);
+	/*std::vector<std::pair<vec3, vec3>> branches;
+	myplant.process(iterations, branches);*/
 	/*for (int i = 0; i < iterations; i++)
 	{
 		  myplant.process(i, branches);
@@ -249,7 +237,7 @@ SOP_Lsystem::cookMySop(OP_Context &context)
 	gdp->clearAndDestroy();
 
 	// Start the interrupt server
-	if (boss->opStart("Building LSYSTEM"))
+	if (boss->opStart("Running BreakingPoint"))
 	{
         // PUT YOUR CODE HERE
 	    // Build a polygon
@@ -259,7 +247,7 @@ SOP_Lsystem::cookMySop(OP_Context &context)
 		// Also use GA_Offset ptoff = poly->getPointOffset()
 		// and gdp->setPos3(ptoff,YOUR_POSITION_VECTOR) to build geometry.
 
-		for (int i = 0; i < branches.size(); i++) {
+		/*for (int i = 0; i < branches.size(); i++) {
 			vec3 start = branches.at(i).first;
 			vec3 end = branches.at(i).second;
 
@@ -270,7 +258,7 @@ SOP_Lsystem::cookMySop(OP_Context &context)
 			
 			GA_Offset ptoff2 = poly->getPointOffset(1);
 			gdp->setPos3(ptoff2, UT_Vector3(end[0], end[1], end[2]));
-		}
+		}*/
 
 
 

@@ -273,13 +273,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="LSystem.cpp" />
-    <ClCompile Include="LSYSTEMPlugin.C" />
+    <ClCompile Include="BreakingPointPlugin.C" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="vec.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LSystem.h" />
-    <ClInclude Include="LSYSTEMPlugin.h" />
+    <ClInclude Include="BreakingPointPlugin.h" />
     <ClInclude Include="matrix.h" />
     <ClInclude Include="vec.h" />
   </ItemGroup>

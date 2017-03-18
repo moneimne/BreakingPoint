@@ -1,7 +1,7 @@
 
 
-#ifndef __LSYSTEM_PLUGIN_h__
-#define __LSYSTEM_PLUGIN_h__
+#ifndef __BREAKINGPOINT_PLUGIN_h__
+#define __BREAKINGPOINT_PLUGIN_h__
 
 //#include <GEO/GEO_Point.h>
 //
@@ -9,7 +9,7 @@
 #include "LSystem.h"
 
 namespace HDK_Sample {
-class SOP_Lsystem : public SOP_Node
+class SOP_BreakingPoint : public SOP_Node
 {
 public:
     static OP_Node		*myConstructor(OP_Network*, const char *,
@@ -24,15 +24,14 @@ public:
 
 protected:
 
-	     SOP_Lsystem(OP_Network *net, const char *name, OP_Operator *op);
-    virtual ~SOP_Lsystem();
+	     SOP_BreakingPoint(OP_Network *net, const char *name, OP_Operator *op);
+    virtual ~SOP_BreakingPoint();
 
     /// Disable parameters according to other parameters.
     virtual unsigned		 disableParms();
 
 
-    /// cookMySop does the actual work of the SOP computing, in this
-    /// case, a LSYSTEM
+    /// cookMySop does the actual work of the SOP computing
     virtual OP_ERROR		 cookMySop(OP_Context &context);
 
     /// This function is used to lookup local variables that you have
@@ -60,20 +59,8 @@ private:
 	// constantly update the cook function, these functions help you get the current value that the node has
 	// Example : To declare a function to fetch angle you need to do it this way 
 	// fpreal  ANGLE(fpreal t)     { return evalFloat("angle", 0, t); }
-	fpreal ANGLE(fpreal t) { return evalFloat("angle", 0, t); }
-	fpreal STEP(fpreal t) { return evalFloat("step", 0, t); }
-	int ITERATIONS(fpreal t) { return evalInt("iterations", 0, t); }
-	void GRAMMAR(UT_String& str, fpreal t) { evalString(str, "grammar", 0, t); }
-
-
-
-
-
-
-
-
-
-
+	fpreal FORCE(fpreal t) { return evalFloat("force", 0, t); }
+	int PIECES(fpreal t) { return evalInt("pieces", 0, t); }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
