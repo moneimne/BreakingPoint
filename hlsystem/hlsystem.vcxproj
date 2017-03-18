@@ -112,7 +112,7 @@
     <IntDir>$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release64|x64'">
-    <OutDir>C:\Users\moneimne\Documents\houdini15.5\dso</OutDir>
+    <OutDir>$(CUSTOM_DSO_PATH)</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>

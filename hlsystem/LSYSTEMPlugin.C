@@ -40,7 +40,7 @@ newSopOperator(OP_OperatorTable *table)
 {
     table->addOperator(
 	    new OP_Operator("CusLsystem",			// Internal name
-			    "MyLsystem",			// UI name
+			    "BreakingPoint",				// UI name
 			     SOP_Lsystem::myConstructor,	// How to build the SOP
 			     SOP_Lsystem::myTemplateList,	// My parameters
 			     0,				// Min # of sources
