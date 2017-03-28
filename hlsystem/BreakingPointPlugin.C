@@ -15,10 +15,12 @@
 #include <PRM/PRM_Range.h>
 #include <OP/OP_Operator.h>
 #include <OP/OP_OperatorTable.h>
+#include <OP/OP_AutoLockInputs.h>
 
 
 #include <limits.h>
 #include "BreakingPointPlugin.h"
+#include "Viewport.h"
 using namespace HDK_Sample;
 
 //
@@ -43,8 +45,8 @@ newSopOperator(OP_OperatorTable *table)
 			    "BreakingPoint",					// UI name
 			     SOP_BreakingPoint::myConstructor,	// How to build the SOP
 			     SOP_BreakingPoint::myTemplateList,	// My parameters
-			     0,				// Min # of sources
-			     0,				// Max # of sources
+			     1,				// Min # of sources
+			     1,				// Max # of sources
 			     SOP_BreakingPoint::myVariables,	// Local variables
 			     OP_FLAG_GENERATOR)		// Flag it as generator
 	    );
@@ -163,6 +165,16 @@ SOP_BreakingPoint::cookMySop(OP_Context &context)
 	LSystem myplant;
 	float force = FORCE(now);
 	int pieces = PIECES(now);
+
+	Viewport vp;
+	OP_AutoLockInputs inputs(this);
+	if (inputs.lock(context) >= UT_ERROR_ABORT)
+		return error();
+	//const GU_Detail *collision = inputGeo(0, context);
+	GU_Detail * collision;
+	duplicateSource(0, context);
+	vp.testIntersect(gdp);
+
 
 	///////////////////////////////////////////////////////////////////////////
 

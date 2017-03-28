@@ -249,7 +249,7 @@
 -DMAKING_DSO %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>$(H15_PATH)\toolkit\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\voro++-0.4.5\include;$(H15_PATH)\toolkit\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;HOUDINI_TEMPLATE_EXPORTS;BOOST_ALL_NO_LIB;_USE_MATH_DEFINES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -260,7 +260,7 @@
     <Link>
       <AdditionalOptions>"$(H15_PATH)\custom\houdini\dsolib\*.a"
 "$(H15_PATH)\custom\houdini\dsolib\*.lib" %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalLibraryDirectories>$(H15_PATH)\custom\houdini\dsolib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\voro++-0.4.5\lib\Release;$(H15_PATH)\custom\houdini\dsolib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -269,6 +269,7 @@
       <DataExecutionPrevention />
       <TargetMachine>MachineX64</TargetMachine>
       <OutputFile>$(CUSTOM_DSO_PATH)\$(ProjectName)_$(Configuration).dll</OutputFile>
+      <AdditionalDependencies>voro++.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -276,12 +277,14 @@
     <ClCompile Include="BreakingPointPlugin.C" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="vec.cpp" />
+    <ClCompile Include="Viewport.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LSystem.h" />
     <ClInclude Include="BreakingPointPlugin.h" />
     <ClInclude Include="matrix.h" />
     <ClInclude Include="vec.h" />
+    <ClInclude Include="Viewport.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
