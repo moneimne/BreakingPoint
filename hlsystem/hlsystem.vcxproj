@@ -249,7 +249,7 @@
 -DMAKING_DSO %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>C:\voro++-0.4.5\include;$(H15_PATH)\toolkit\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\CGAL-4.9\build\include;C:\dev\CGAL-4.9\auxiliary\gmp\include;C:\dev\CGAL-4.9\include;C:\dev\Libigl\include;C:\dev\Eigen;C:\voro++-0.4.5\include;$(H15_PATH)\toolkit\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;HOUDINI_TEMPLATE_EXPORTS;BOOST_ALL_NO_LIB;_USE_MATH_DEFINES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -260,7 +260,7 @@
     <Link>
       <AdditionalOptions>"$(H15_PATH)\custom\houdini\dsolib\*.a"
 "$(H15_PATH)\custom\houdini\dsolib\*.lib" %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalLibraryDirectories>C:\voro++-0.4.5\lib\Release;$(H15_PATH)\custom\houdini\dsolib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\dev\CGAL-4.9\build\lib\Release;C:\voro++-0.4.5\lib\Release;$(H15_PATH)\custom\houdini\dsolib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -269,7 +269,7 @@
       <DataExecutionPrevention />
       <TargetMachine>MachineX64</TargetMachine>
       <OutputFile>$(CUSTOM_DSO_PATH)\$(ProjectName)_$(Configuration).dll</OutputFile>
-      <AdditionalDependencies>voro++.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>voro++.lib;CGAL_Core-vc140-mt-4.9.lib;CGAL_ImageIO-vc140-mt-4.9.lib;CGAL-vc140-mt-4.9.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

@@ -1,6 +1,26 @@
 #include "Viewport.h"
 #include "voro/voro++.hh"
+
+#include "Eigen/Dense"
+#include <igl/copyleft/cgal/mesh_boolean.h>
+
 using namespace voro;
+using namespace Eigen;
+
+Eigen::MatrixXd VA, VB, VC;
+Eigen::VectorXi J, I;
+Eigen::MatrixXi FA, FB, FC;
+igl::MeshBooleanType boolean_type(
+	igl::MESH_BOOLEAN_TYPE_UNION);
+
+const char * MESH_BOOLEAN_TYPE_NAMES[] =
+{
+	"Union",
+	"Intersect",
+	"Minus",
+	"XOR",
+	"Resolve",
+};
 
 
 
@@ -25,7 +45,10 @@ void Viewport::createRay()
 
 void Viewport::testIntersect(GEO_Detail* collision)
 {
-	
+	MatrixXd m(2, 2);
+	m(0, 0) = 3;
+	m(1, 0) = 2.5;
+	m(0, 1) = -1;
 	GU_RayIntersect* myCollision;
 	if (collision)
 	{
