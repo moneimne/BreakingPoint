@@ -3,6 +3,7 @@
 #include <GU/GU_RayPrimitive.h>
 #include <OP/OP_Operator.h>
 #include <OP/OP_OperatorTable.h>
+#include "voronoi.h"
 
 class Viewport
 {
@@ -11,6 +12,6 @@ public:
 	~Viewport();
 	void handleMouseEvent(UI_Event *event);
 	void createRay();
-	void testIntersect(GEO_Detail* collision);
+	Geometry testIntersect(GEO_Detail* collision, UT_Vector3 & intersect);
 };
 

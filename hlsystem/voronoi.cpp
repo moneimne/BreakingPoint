@@ -28,7 +28,7 @@ void Voronoi::createVoronoiFile(int numSeeds, std::string outputFileName) {
 	con.print_custom("%w\n%P\n%s\n%t", "output.txt");
 }
 
-void triangulateFaces(Faces &trifaceData, const Faces &faceData) {
+void Voronoi::triangulateFaces(Faces &trifaceData, const Faces &faceData) {
 	for (int i = 0; i < faceData.size(); i++) {
 		for (int j = 0; j < faceData[i].size() - 2; j++) {
 			std::vector<int> tri = { faceData[i][0], faceData[i][j + 2],faceData[i][j + 1] };

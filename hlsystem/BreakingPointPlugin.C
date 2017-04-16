@@ -173,7 +173,10 @@ SOP_BreakingPoint::cookMySop(OP_Context &context)
 	//const GU_Detail *collision = inputGeo(0, context);
 	GU_Detail * collision;
 	duplicateSource(0, context);
-	vp.testIntersect(gdp);
+	UT_Vector3 isect;
+	Geometry cube = vp.testIntersect(gdp,isect);
+	std::cout << "it worked?" << std::endl;
+	std::cout << "x: " << isect[0] << " y: " << isect[1] << " z: " << isect[2] << std::endl;
 
 
 	///////////////////////////////////////////////////////////////////////////
