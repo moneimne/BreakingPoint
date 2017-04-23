@@ -124,8 +124,8 @@ Geometry Viewport::testIntersect(GEO_Detail* collision, UT_Vector3 & intersect)
 			intersect = isect;
 		}
 	}
-	Faces triface;
-	Voronoi::triangulateFaces(triface,faces);
-	return Geometry(vertices, faces);
+	Faces trifaces;
+	Voronoi::triangulateFaces(trifaces,faces);
+	return Geometry(vertices, trifaces);
 
 }
