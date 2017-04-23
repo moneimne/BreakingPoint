@@ -1,4 +1,5 @@
 #include "voronoi.h"
+#include <iostream>
 using namespace voro;
 
 double rnd() { return double(rand()) / RAND_MAX; }
@@ -25,7 +26,7 @@ void Voronoi::createVoronoiFile(int numSeeds, std::string outputFileName) {
 		con.put(i, x, y, z);
 	}
 
-	con.print_custom("%w\n%P\n%s\n%t", "output.txt");
+	con.print_custom("%w\n%P\n%s\n%t", outputFileName.c_str());
 }
 
 void Voronoi::triangulateFaces(Faces &trifaceData, const Faces &faceData) {
@@ -93,9 +94,10 @@ std::vector<Geometry> Voronoi::parseVoronoi(std::string voronoiFile) {
 			int numFaceChars = 0;
 			std::vector<int> vertexIndices = std::vector<int>();
 			for (int j = 0; j < numIndices; j++) {
+				int numFaceCharsRead;
 				int f;
-				sscanf(face + numFaceChars + 1, "%i", &f);
-				numFaceChars += 2;
+				sscanf(face + numFaceChars + 1, "%i%n", &f, &numFaceCharsRead);
+				numFaceChars += numFaceCharsRead + 1;
 				vertexIndices.push_back(f);
 			}
 

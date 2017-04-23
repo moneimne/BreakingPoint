@@ -1,4 +1,6 @@
 #include "booleanops.h"
+#include "igl/list_to_matrix.h"
+#include "igl/matrix_to_list.h"
 
 void vertexListToMatrix(const Points& vertexData, Eigen::MatrixXd& M) {
 	M.resize(vertexData.size(), 3);
@@ -18,27 +20,20 @@ void faceListToMatrix(const Faces& faceData, Eigen::MatrixXi& M) {
 	}
 }
 
-void BooleanOps::testBoolean(std::vector<Geometry> voroData) {
+Geometry BooleanOps::testBoolean(Geometry isectObject, Geometry voroCell, igl::MeshBooleanType boolType) {
 	Eigen::MatrixXd VA, VB, VC;
 	Eigen::MatrixXi FA, FB, FC;
-	igl::MeshBooleanType boolean_type(igl::MESH_BOOLEAN_TYPE_INTERSECT);
-	vertexListToMatrix(voroData[0].first, VA);
-	faceListToMatrix(voroData[0].second, FA);
-	vertexListToMatrix(voroData[1].first, VB);
-	faceListToMatrix(voroData[1].second, FB);
-	std::cout << "VA:\n";
-	std::cout << VA << std::endl;
-	std::cout << "FA:\n";
-	std::cout << FA << std::endl;
-	std::cout << "VB:\n";
-	std::cout << VB << std::endl;
-	std::cout << "FB:\n";
-	std::cout << FB << std::endl;
-	if (igl::copyleft::cgal::mesh_boolean(VA, FA, VB, FB, boolean_type, VC, FC)) {
-		std::cout << "Success\n";
+	igl::list_to_matrix(isectObject.first, VA);
+	igl::list_to_matrix(isectObject.second, FA);
+	igl::list_to_matrix(voroCell.first, VB);
+	igl::list_to_matrix(voroCell.second, FB);
+	if (!igl::copyleft::cgal::mesh_boolean(VA, FA, VB, FB, boolType, VC, FC)) {
+		return Geometry();
 	}
-	std::cout << "VC:\n";
-	std::cout << VC << std::endl;
-	std::cout << "FC:\n";
-	std::cout << FC << std::endl;
+
+	Points outputPoints;
+	Faces outputFaces;
+	igl::matrix_to_list(VC, outputPoints);
+	igl::matrix_to_list(FC, outputFaces);
+	return Geometry(outputPoints, outputFaces);
 }

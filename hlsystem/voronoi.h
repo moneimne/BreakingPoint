@@ -8,8 +8,8 @@ typedef std::pair<Points, Faces> Geometry;
 class Voronoi {
 	
 public:
-	void createVoronoiFile(int numSeeds, std::string outputFileName);
+	static void createVoronoiFile(int numSeeds, std::string outputFileName);
 
-	std::vector<Geometry> parseVoronoi(std::string voronoiFile);
+	static std::vector<Geometry> parseVoronoi(std::string voronoiFile);
 	static void triangulateFaces(Faces &trifaceData, const Faces &faceData);
 };

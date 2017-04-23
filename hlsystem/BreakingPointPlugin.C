@@ -21,6 +21,7 @@
 #include <limits.h>
 #include "BreakingPointPlugin.h"
 #include "Viewport.h"
+#include "booleanops.h"
 using namespace HDK_Sample;
 
 //
@@ -177,6 +178,24 @@ SOP_BreakingPoint::cookMySop(OP_Context &context)
 	Geometry cube = vp.testIntersect(gdp,isect);
 	std::cout << "it worked?" << std::endl;
 	std::cout << "x: " << isect[0] << " y: " << isect[1] << " z: " << isect[2] << std::endl;
+
+	Voronoi::createVoronoiFile(pieces, "voronoiOutput.txt");
+	std::vector<Geometry> voroData = Voronoi::parseVoronoi("voronoiOutput.txt");
+	std::vector<Geometry> splitMesh = std::vector<Geometry>();
+	for (int i = 0; i < voroData.size(); i++) {
+		// TODO: Offset voronoi data
+		igl::MeshBooleanType boolean_type(igl::MESH_BOOLEAN_TYPE_INTERSECT);
+		Geometry outputGeometry = BooleanOps::testBoolean(cube, voroData.at(i), boolean_type);
+		if (outputGeometry.first.size() != 0 && outputGeometry.second.size() != 0) {
+			splitMesh.push_back(outputGeometry);
+		}
+	}
+	/*std::cout << "intersected everything\n";
+	Voronoi::createVoronoiFile(1, "cube.txt");
+	std::vector<Geometry> cubeData = Voronoi::parseVoronoi("cube.txt");
+	igl::MeshBooleanType boolean_type(igl::MESH_BOOLEAN_TYPE_MINUS);
+	splitMesh.push_back(BooleanOps::testBoolean(cube, cubeData.at(0), boolean_type));
+	std::cout << "subtracted\n";*/
 
 
 	///////////////////////////////////////////////////////////////////////////

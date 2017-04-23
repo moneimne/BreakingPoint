@@ -4,5 +4,5 @@
 
 class BooleanOps {
 public:
-	void testBoolean(std::vector<Geometry> voroData);
+	static Geometry testBoolean(Geometry voroCell, Geometry isectObject, igl::MeshBooleanType boolType);
 };
