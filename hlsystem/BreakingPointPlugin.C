@@ -178,6 +178,9 @@ SOP_BreakingPoint::cookMySop(OP_Context &context)
 	Geometry cube = vp.testIntersect(gdp,isect);
 	std::cout << "it worked?" << std::endl;
 	std::cout << "x: " << isect[0] << " y: " << isect[1] << " z: " << isect[2] << std::endl;
+	std::vector<Geometry> meshes;
+	meshes.push_back(cube);
+	meshes.push_back(cube);
 
 	Voronoi::createVoronoiFile(pieces, "voronoiOutput.txt");
 	std::vector<Geometry> voroData = Voronoi::parseVoronoi("voronoiOutput.txt");
@@ -244,6 +247,7 @@ SOP_BreakingPoint::cookMySop(OP_Context &context)
     float		 tmp;
     UT_Vector4		 pos;
     GU_PrimPoly		*poly;
+	GU_PrimPoly		*poly2;
     int			 i;
     UT_Interrupt	*boss;
 	vec3 start, end;
@@ -280,19 +284,27 @@ SOP_BreakingPoint::cookMySop(OP_Context &context)
 		// Use GU_PrimPoly poly = GU_PrimPoly::build(see what values it can take)
 		// Also use GA_Offset ptoff = poly->getPointOffset()
 		// and gdp->setPos3(ptoff,YOUR_POSITION_VECTOR) to build geometry.
-
-		/*for (int i = 0; i < branches.size(); i++) {
-			vec3 start = branches.at(i).first;
-			vec3 end = branches.at(i).second;
-
-			poly = GU_PrimPoly::build(gdp, 2, GU_POLY_OPEN);
-			
-			GA_Offset ptoff1 = poly->getPointOffset(0);
-			gdp->setPos3(ptoff1, UT_Vector3(start[0], start[1], start[2]));
-			
-			GA_Offset ptoff2 = poly->getPointOffset(1);
-			gdp->setPos3(ptoff2, UT_Vector3(end[0], end[1], end[2]));
-		}*/
+		std::vector<GA_Offset> ptoffs;
+		int offset = 0;
+		for (int i = 0; i < meshes.size(); i++) {
+			std::cout << "offset: " << offset << std::endl;
+			Points points = meshes[i].first;
+			Faces faces = meshes[i].second;
+			for (int j = 0; j < points.size(); j++) {
+				std::vector<double> p = points[j];
+				GA_Offset ptoff = gdp->appendPointOffset();
+				gdp->setPos3(ptoff, UT_Vector3(p[0], p[1], p[2]));
+				std::cout <<"ptoff: " << ptoff << std::endl;
+				ptoffs.push_back(ptoff);
+			}
+			for (int j = 0; j < faces.size(); j++) {
+				GU_PrimPoly *tripoly = GU_PrimPoly::build(gdp, 3, GU_POLY_CLOSED);
+				for (int idx = 0; idx < 3; idx++) {
+					tripoly->setPointOffset(idx, ptoffs[faces[j][idx] + offset]);
+				}
+			}
+			offset += points.size();
+		}
 
 
 
