@@ -179,8 +179,7 @@ SOP_BreakingPoint::cookMySop(OP_Context &context)
 	std::cout << "it worked?" << std::endl;
 	std::cout << "x: " << isect[0] << " y: " << isect[1] << " z: " << isect[2] << std::endl;
 	std::vector<Geometry> meshes;
-	meshes.push_back(cube);
-	meshes.push_back(cube);
+	//meshes.push_back(cube);
 
 	Voronoi::createVoronoiFile(pieces, "voronoiOutput.txt");
 	std::vector<Geometry> voroData = Voronoi::parseVoronoi("voronoiOutput.txt");
@@ -190,7 +189,7 @@ SOP_BreakingPoint::cookMySop(OP_Context &context)
 		igl::MeshBooleanType boolean_type(igl::MESH_BOOLEAN_TYPE_INTERSECT);
 		Geometry outputGeometry = BooleanOps::testBoolean(cube, voroData.at(i), boolean_type);
 		if (outputGeometry.first.size() != 0 && outputGeometry.second.size() != 0) {
-			splitMesh.push_back(outputGeometry);
+			meshes.push_back(outputGeometry);
 		}
 	}
 	/*std::cout << "intersected everything\n";
@@ -305,6 +304,7 @@ SOP_BreakingPoint::cookMySop(OP_Context &context)
 			}
 			offset += points.size();
 		}
+		gdp->normal();
 
 
 
