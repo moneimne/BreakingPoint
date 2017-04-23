@@ -60,6 +60,7 @@ newSopOperator(OP_OperatorTable *table)
 //static PRM_Name		angleName("angle", "Angle");
 static PRM_Name forceName("force", "Impact Force");
 static PRM_Name piecesName("pieces", "Number of Pieces");
+static PRM_Name scaleName("scale", "Voronoi Scale");
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //				     ^^^^^^^^    ^^^^^^^^^^^^^^^
@@ -73,7 +74,10 @@ static PRM_Name piecesName("pieces", "Number of Pieces");
 
 static PRM_Default forceDefault(30.0);
 static PRM_Range forceRange(PRM_RANGE_UI, 0.0, PRM_RANGE_UI, 500.0);
-static PRM_Default piecesDefault(1);
+static PRM_Default piecesDefault(4);
+static PRM_Range piecesRange(PRM_RANGE_UI, 4, PRM_RANGE_UI, 20);
+static PRM_Default scaleDefault(1.0);
+static PRM_Range scaleRange(PRM_RANGE_UI, 1.0, PRM_RANGE_UI, 50.0);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -86,8 +90,8 @@ SOP_BreakingPoint::myTemplateList[] = {
 	// PRM_Template(PRM_FLT,	PRM_Template::PRM_EXPORT_MIN, 1, &angleName, &angleDefault, 0),
 	// Similarly add all the other parameters in the template format here
 		PRM_Template(PRM_FLT, PRM_Template::PRM_EXPORT_MIN, 1, &forceName, &forceDefault, 0, &forceRange),
-		PRM_Template(PRM_INT, PRM_Template::PRM_EXPORT_MIN, 1, &piecesName, &piecesDefault, 0),
-
+		PRM_Template(PRM_INT, PRM_Template::PRM_EXPORT_MIN, 1, &piecesName, &piecesDefault, 0, &piecesRange),
+		PRM_Template(PRM_FLT, PRM_Template::PRM_EXPORT_MIN, 1, &scaleName, &scaleDefault, 0, &scaleRange),
 /////////////////////////////////////////////////////////////////////////////////////////////
 
     PRM_Template()
@@ -166,6 +170,7 @@ SOP_BreakingPoint::cookMySop(OP_Context &context)
 	LSystem myplant;
 	float force = FORCE(now);
 	int pieces = PIECES(now);
+	float scale = SCALE(now);
 
 	Viewport vp;
 	OP_AutoLockInputs inputs(this);
@@ -181,14 +186,18 @@ SOP_BreakingPoint::cookMySop(OP_Context &context)
 	std::vector<Geometry> meshes;
 	//meshes.push_back(cube);
 
-	Voronoi::createVoronoiFile(pieces, "voronoiOutput.txt");
+	std::vector<float> isectVector = { isect[0], isect[1], isect[2] };
+	Voronoi::createVoronoiFile(pieces, isectVector, scale, "voronoiOutput.txt");
 	std::vector<Geometry> voroData = Voronoi::parseVoronoi("voronoiOutput.txt");
 	std::vector<Geometry> splitMesh = std::vector<Geometry>();
 	for (int i = 0; i < voroData.size(); i++) {
-		// TODO: Offset voronoi data
 		igl::MeshBooleanType boolean_type(igl::MESH_BOOLEAN_TYPE_INTERSECT);
+		//std::cout << "entering testBoolean\n";
 		Geometry outputGeometry = BooleanOps::testBoolean(cube, voroData.at(i), boolean_type);
+		//std::cout << "Reached here\n";
+		//std::cout << outputGeometry.first.size() << ", " << outputGeometry.second.size() << std::endl;
 		if (outputGeometry.first.size() != 0 && outputGeometry.second.size() != 0) {
+			//std::cout << "pushing outputGeometry\n";
 			meshes.push_back(outputGeometry);
 		}
 	}

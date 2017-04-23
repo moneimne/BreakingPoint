@@ -61,6 +61,7 @@ private:
 	// fpreal  ANGLE(fpreal t)     { return evalFloat("angle", 0, t); }
 	fpreal FORCE(fpreal t) { return evalFloat("force", 0, t); }
 	int PIECES(fpreal t) { return evalInt("pieces", 0, t); }
+	fpreal SCALE(fpreal t) { return evalFloat("scale", 0, t); }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 

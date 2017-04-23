@@ -1,15 +1,16 @@
 #include "voronoi.h"
 #include <iostream>
+#include <sstream>
 using namespace voro;
 
 double rnd() { return double(rand()) / RAND_MAX; }
 
-void Voronoi::createVoronoiFile(int numSeeds, std::string outputFileName) {
+void Voronoi::createVoronoiFile(int numSeeds, std::vector<float> offset, float scale, std::string outputFileName) {
 	int i;
 	double x, y, z;
-	double x_min = -1, x_max = 1;
-	double y_min = -1, y_max = 1;
-	double z_min = -1, z_max = 1;
+	double x_min = -scale + offset[0], x_max = scale + offset[0];
+	double y_min = -scale + offset[1], y_max = scale + offset[1];
+	double z_min = -scale + offset[2], z_max = scale + offset[2];
 	int n_x = 6, n_y = 6, n_z = 6;
 
 	// Create a container with the geometry given above, and make it
@@ -19,7 +20,14 @@ void Voronoi::createVoronoiFile(int numSeeds, std::string outputFileName) {
 		false, false, false, 8);
 
 	// Randomly add particles into the container
-	for (i = 0; i<numSeeds; i++) {
+	float f = 0.2f;
+	for (i = 0; i < 4; i++) {
+		x = offset[0] + (f * scale * (-1 + (2 * rnd())));
+		y = offset[1] + (f * scale * (-1 + (2 * rnd())));
+		z = offset[2] + (f * scale * (-1 + (2 * rnd())));
+		con.put(i, x, y, z);
+	}
+	for (i = 4; i<numSeeds; i++) {
 		x = x_min + rnd()*(x_max - x_min);
 		y = y_min + rnd()*(y_max - y_min);
 		z = z_min + rnd()*(z_max - z_min);
@@ -90,14 +98,13 @@ std::vector<Geometry> Voronoi::parseVoronoi(std::string voronoiFile) {
 			numChars += numCharsRead;
 
 			// Save indices
-			int numIndices = (numCharsRead / 2) - 1;
-			int numFaceChars = 0;
 			std::vector<int> vertexIndices = std::vector<int>();
-			for (int j = 0; j < numIndices; j++) {
-				int numFaceCharsRead;
-				int f;
-				sscanf(face + numFaceChars + 1, "%i%n", &f, &numFaceCharsRead);
-				numFaceChars += numFaceCharsRead + 1;
+			std::string str(face);
+			str = str.substr(1, str.length() - 2);
+			std::stringstream ss(str);
+			std::string token;
+			while (std::getline(ss, token, ',')) {
+				int f = std::stoi(token);
 				vertexIndices.push_back(f);
 			}
 

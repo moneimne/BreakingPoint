@@ -27,10 +27,12 @@ Geometry BooleanOps::testBoolean(Geometry isectObject, Geometry voroCell, igl::M
 	igl::list_to_matrix(isectObject.second, FA);
 	igl::list_to_matrix(voroCell.first, VB);
 	igl::list_to_matrix(voroCell.second, FB);
+	//std::cout << "converted everything to matrices\n";
 	if (!igl::copyleft::cgal::mesh_boolean(VA, FA, VB, FB, boolType, VC, FC)) {
+		//std::cout << "failed boolean\n";
 		return Geometry();
 	}
-
+	//std::cout << "succeeded boolean\n";
 	Points outputPoints;
 	Faces outputFaces;
 	igl::matrix_to_list(VC, outputPoints);
