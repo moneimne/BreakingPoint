@@ -16,7 +16,7 @@
 #include <OP/OP_Operator.h>
 #include <OP/OP_OperatorTable.h>
 #include <OP/OP_AutoLockInputs.h>
-
+#include <PRM/PRM_ChoiceList.h>
 
 #include <limits.h>
 #include "BreakingPointPlugin.h"
@@ -58,9 +58,19 @@ newSopOperator(OP_OperatorTable *table)
 //You need to declare your parameters here
 //Example to declare a variable for angle you can do like this :
 //static PRM_Name		angleName("angle", "Angle");
-static PRM_Name forceName("force", "Impact Force");
 static PRM_Name piecesName("pieces", "Number of Pieces");
 static PRM_Name scaleName("scale", "Voronoi Scale");
+
+
+static PRM_Name         sopOrdinalName("choice", "Fracture Type");
+static PRM_Name         sopOrdChoices[] =
+{
+	PRM_Name("choice1", "Spider Web"),
+	PRM_Name("choice2", "Dynamic Fracture"),
+	PRM_Name(0)
+};
+static PRM_ChoiceList   sopOrdinalMenu(PRM_CHOICELIST_SINGLE, sopOrdChoices);
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //				     ^^^^^^^^    ^^^^^^^^^^^^^^^
@@ -72,8 +82,6 @@ static PRM_Name scaleName("scale", "Voronoi Scale");
 // For example : If you are declaring the inital value for the angle parameter
 // static PRM_Default angleDefault(30.0);	
 
-static PRM_Default forceDefault(30.0);
-static PRM_Range forceRange(PRM_RANGE_UI, 0.0, PRM_RANGE_UI, 500.0);
 static PRM_Default piecesDefault(4);
 static PRM_Range piecesRange(PRM_RANGE_UI, 4, PRM_RANGE_UI, 20);
 static PRM_Default scaleDefault(1.0);
@@ -89,10 +97,10 @@ SOP_BreakingPoint::myTemplateList[] = {
 	// EXAMPLE : For the angle parameter this is how you should add into the template
 	// PRM_Template(PRM_FLT,	PRM_Template::PRM_EXPORT_MIN, 1, &angleName, &angleDefault, 0),
 	// Similarly add all the other parameters in the template format here
-		PRM_Template(PRM_FLT, PRM_Template::PRM_EXPORT_MIN, 1, &forceName, &forceDefault, 0, &forceRange),
 		PRM_Template(PRM_INT, PRM_Template::PRM_EXPORT_MIN, 1, &piecesName, &piecesDefault, 0, &piecesRange),
 		PRM_Template(PRM_FLT, PRM_Template::PRM_EXPORT_MIN, 1, &scaleName, &scaleDefault, 0, &scaleRange),
-/////////////////////////////////////////////////////////////////////////////////////////////
+		PRM_Template(PRM_ORD,    1, &sopOrdinalName, 0, &sopOrdinalMenu),
+		/////////////////////////////////////////////////////////////////////////////////////////////
 
     PRM_Template()
 };
@@ -167,100 +175,117 @@ SOP_BreakingPoint::cookMySop(OP_Context &context)
 	//    float angle;
 	//    angle = ANGLE(now)       
     //    NOTE : ANGLE is a function that you need to use and it is declared in the header file to update your values instantly while cooking
-	float force = FORCE(now);
 	int pieces = PIECES(now);
 	float scale = SCALE(now);
+	int choice = CHOICE(now);
 
-	Viewport vp;
-	OP_AutoLockInputs inputs(this);
-	if (inputs.lock(context) >= UT_ERROR_ABORT)
-		return error();
-	//const GU_Detail *collision = inputGeo(0, context);
-	GU_Detail * collision;
-	duplicateSource(0, context);
-	UT_Vector3 isect;
-	Geometry cube = vp.testIntersect(gdp,isect);
-	//std::cout << "it worked?" << std::endl;
-	//std::cout << "x: " << isect[0] << " y: " << isect[1] << " z: " << isect[2] << std::endl;
-	std::vector<Geometry> meshes;
-	//meshes.push_back(cube);
+	std::cout << "choice: " << choice << std::endl;
 
-	std::vector<float> isectVector = { isect[0], isect[1], isect[2] };
-	Voronoi::createVoronoiFile(pieces, isectVector, scale, "voronoiOutput.txt");
-	std::vector<Geometry> voroData = Voronoi::parseVoronoi("voronoiOutput.txt");
-	std::vector<Geometry> splitMesh = std::vector<Geometry>();
-	for (int i = 0; i < voroData.size(); i++) {
-		igl::MeshBooleanType boolean_type(igl::MESH_BOOLEAN_TYPE_INTERSECT);
-		//std::cout << "entering testBoolean\n";
-		Geometry outputGeometry = BooleanOps::testBoolean(cube, voroData.at(i), boolean_type);
-		//std::cout << "Reached here\n";
-		//std::cout << outputGeometry.first.size() << ", " << outputGeometry.second.size() << std::endl;
-		if (outputGeometry.first.size() != 0 && outputGeometry.second.size() != 0) {
-			//std::cout << "pushing outputGeometry\n";
-			meshes.push_back(outputGeometry);
+	if (choice == 0) {
+		std::cout << "hi" << std::endl;
+		UT_Interrupt	*boss;
+
+		// Check to see that there hasn't been a critical error in cooking the SOP.
+		if (error() < UT_ERROR_ABORT)
+		{
+			boss = UTgetInterrupt();
+			gdp->clearAndDestroy();
 		}
 	}
-	/*std::cout << "intersected everything\n";
-	Voronoi::createVoronoiFile(1, "cube.txt");
-	std::vector<Geometry> cubeData = Voronoi::parseVoronoi("cube.txt");
-	igl::MeshBooleanType boolean_type(igl::MESH_BOOLEAN_TYPE_MINUS);
-	splitMesh.push_back(BooleanOps::testBoolean(cube, cubeData.at(0), boolean_type));
-	std::cout << "subtracted\n";*/
 
-	// PUT YOUR CODE HERE
-	// Declare all the necessary variables
-    UT_Interrupt	*boss;
+	if (choice == 1) {
 
-    // Check to see that there hasn't been a critical error in cooking the SOP.
-    if (error() < UT_ERROR_ABORT)
-    {
-		boss = UTgetInterrupt();
-		gdp->clearAndDestroy();
+		Viewport vp;
+		OP_AutoLockInputs inputs(this);
+		if (inputs.lock(context) >= UT_ERROR_ABORT)
+			return error();
+		//const GU_Detail *collision = inputGeo(0, context);
+		GU_Detail * collision;
+		duplicateSource(0, context);
+		UT_Vector3 isect;
+		Geometry cube = vp.testIntersect(gdp, isect);
+		//std::cout << "it worked?" << std::endl;
+		//std::cout << "x: " << isect[0] << " y: " << isect[1] << " z: " << isect[2] << std::endl;
+		std::vector<Geometry> meshes;
+		//meshes.push_back(cube);
 
-		// Start the interrupt server
-		if (boss->opStart("Running BreakingPoint"))
-		{
-			// PUT YOUR CODE HERE
-			// Build a polygon
-			// You need to build your cylinders inside Houdini from here
-			// TIPS:
-			// Use GU_PrimPoly poly = GU_PrimPoly::build(see what values it can take)
-			// Also use GA_Offset ptoff = poly->getPointOffset()
-			// and gdp->setPos3(ptoff,YOUR_POSITION_VECTOR) to build geometry.
-			std::vector<GA_Offset> ptoffs;
-			int offset = 0;
-			for (int i = 0; i < meshes.size(); i++) {
-				//std::cout << "offset: " << offset << std::endl;
-				Points points = meshes[i].first;
-				Faces faces = meshes[i].second;
-				for (int j = 0; j < points.size(); j++) {
-					std::vector<double> p = points[j];
-					GA_Offset ptoff = gdp->appendPointOffset();
-					gdp->setPos3(ptoff, UT_Vector3(p[0], p[1], p[2]));
-					//std::cout <<"ptoff: " << ptoff << std::endl;
-					ptoffs.push_back(ptoff);
-				}
-				for (int j = 0; j < faces.size(); j++) {
-					GU_PrimPoly *tripoly = GU_PrimPoly::build(gdp, 3, GU_POLY_CLOSED);
-					for (int idx = 0; idx < 3; idx++) {
-						tripoly->setPointOffset(idx, ptoffs[faces[j][idx] + offset]);
-					}
-				}
-				offset += points.size();
+		std::vector<float> isectVector = { isect[0], isect[1], isect[2] };
+		Voronoi::createVoronoiFile(pieces, isectVector, scale, "voronoiOutput.txt");
+		std::vector<Geometry> voroData = Voronoi::parseVoronoi("voronoiOutput.txt");
+		std::vector<Geometry> splitMesh = std::vector<Geometry>();
+		for (int i = 0; i < voroData.size(); i++) {
+			igl::MeshBooleanType boolean_type(igl::MESH_BOOLEAN_TYPE_INTERSECT);
+			//std::cout << "entering testBoolean\n";
+			Geometry outputGeometry = BooleanOps::testBoolean(cube, voroData.at(i), boolean_type);
+			//std::cout << "Reached here\n";
+			//std::cout << outputGeometry.first.size() << ", " << outputGeometry.second.size() << std::endl;
+			if (outputGeometry.first.size() != 0 && outputGeometry.second.size() != 0) {
+				//std::cout << "pushing outputGeometry\n";
+				meshes.push_back(outputGeometry);
 			}
-			gdp->normal();
-			////////////////////////////////////////////////////////////////////////////////////////////
-
-			// Highlight the star which we have just generated.  This routine
-			// call clears any currently highlighted geometry, and then it
-			// highlights every primitive for this SOP. 
-			select(GU_SPrimitive);
 		}
+		/*std::cout << "intersected everything\n";
+		Voronoi::createVoronoiFile(1, "cube.txt");
+		std::vector<Geometry> cubeData = Voronoi::parseVoronoi("cube.txt");
+		igl::MeshBooleanType boolean_type(igl::MESH_BOOLEAN_TYPE_MINUS);
+		splitMesh.push_back(BooleanOps::testBoolean(cube, cubeData.at(0), boolean_type));
+		std::cout << "subtracted\n";*/
 
-		// Tell the interrupt server that we've completed. Must do this
-		// regardless of what opStart() returns.
-		boss->opEnd();
-    }
+		// PUT YOUR CODE HERE
+		// Declare all the necessary variables
+		UT_Interrupt	*boss;
+
+		// Check to see that there hasn't been a critical error in cooking the SOP.
+		if (error() < UT_ERROR_ABORT)
+		{
+			boss = UTgetInterrupt();
+			gdp->clearAndDestroy();
+
+			// Start the interrupt server
+			if (boss->opStart("Running BreakingPoint"))
+			{
+				// PUT YOUR CODE HERE
+				// Build a polygon
+				// You need to build your cylinders inside Houdini from here
+				// TIPS:
+				// Use GU_PrimPoly poly = GU_PrimPoly::build(see what values it can take)
+				// Also use GA_Offset ptoff = poly->getPointOffset()
+				// and gdp->setPos3(ptoff,YOUR_POSITION_VECTOR) to build geometry.
+				std::vector<GA_Offset> ptoffs;
+				int offset = 0;
+				for (int i = 0; i < meshes.size(); i++) {
+					//std::cout << "offset: " << offset << std::endl;
+					Points points = meshes[i].first;
+					Faces faces = meshes[i].second;
+					for (int j = 0; j < points.size(); j++) {
+						std::vector<double> p = points[j];
+						GA_Offset ptoff = gdp->appendPointOffset();
+						gdp->setPos3(ptoff, UT_Vector3(p[0], p[1], p[2]));
+						//std::cout <<"ptoff: " << ptoff << std::endl;
+						ptoffs.push_back(ptoff);
+					}
+					for (int j = 0; j < faces.size(); j++) {
+						GU_PrimPoly *tripoly = GU_PrimPoly::build(gdp, 3, GU_POLY_CLOSED);
+						for (int idx = 0; idx < 3; idx++) {
+							tripoly->setPointOffset(idx, ptoffs[faces[j][idx] + offset]);
+						}
+					}
+					offset += points.size();
+				}
+				gdp->normal();
+				////////////////////////////////////////////////////////////////////////////////////////////
+
+				// Highlight the star which we have just generated.  This routine
+				// call clears any currently highlighted geometry, and then it
+				// highlights every primitive for this SOP. 
+				select(GU_SPrimitive);
+			}
+
+			// Tell the interrupt server that we've completed. Must do this
+			// regardless of what opStart() returns.
+			boss->opEnd();
+		}
+	}
 
     return error();
 }
