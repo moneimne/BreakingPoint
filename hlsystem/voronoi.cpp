@@ -120,6 +120,7 @@ std::vector<Geometry> Voronoi::parseVoronoi(std::string voronoiFile) {
 			break;
 		}
 	}
+	fclose(voroFile);
 
 	return voroData;
 }

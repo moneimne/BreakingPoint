@@ -166,8 +166,7 @@ SOP_BreakingPoint::cookMySop(OP_Context &context)
 	// For example to always get the current angle thats set in the node ,you need to :
 	//    float angle;
 	//    angle = ANGLE(now)       
-    //    NOTE : ANGLE is a function that you need to use and it is declared in the header file to update your values instantly while cooking 
-	LSystem myplant;
+    //    NOTE : ANGLE is a function that you need to use and it is declared in the header file to update your values instantly while cooking
 	float force = FORCE(now);
 	int pieces = PIECES(now);
 	float scale = SCALE(now);
@@ -181,8 +180,8 @@ SOP_BreakingPoint::cookMySop(OP_Context &context)
 	duplicateSource(0, context);
 	UT_Vector3 isect;
 	Geometry cube = vp.testIntersect(gdp,isect);
-	std::cout << "it worked?" << std::endl;
-	std::cout << "x: " << isect[0] << " y: " << isect[1] << " z: " << isect[2] << std::endl;
+	//std::cout << "it worked?" << std::endl;
+	//std::cout << "x: " << isect[0] << " y: " << isect[1] << " z: " << isect[2] << std::endl;
 	std::vector<Geometry> meshes;
 	//meshes.push_back(cube);
 
@@ -208,130 +207,60 @@ SOP_BreakingPoint::cookMySop(OP_Context &context)
 	splitMesh.push_back(BooleanOps::testBoolean(cube, cubeData.at(0), boolean_type));
 	std::cout << "subtracted\n";*/
 
-
-	///////////////////////////////////////////////////////////////////////////
-
-	//PUT YOUR CODE HERE
-	// Next you need to call your Lystem cpp functions 
-	// Below is an example , you need to call the same functions based on the variables you declare
-    // myplant.loadProgramFromString("F\nF->F[+F]F[-F]";  
-    // myplant.setDefaultAngle(30.0f);
-    // myplant.setDefaultStep(1.0f);
-	/*myplant.loadProgramFromString(grammar.toStdString());
-	myplant.setDefaultAngle(angle);
-	myplant.setDefaultStep(step);*/
-	
-
-
-	///////////////////////////////////////////////////////////////////////////////
-
 	// PUT YOUR CODE HERE
-	// You the need call the below function for all the genrations ,so that the end points points will be
-	// stored in the branches vector , you need to declare them first
-
-	/*std::vector<std::pair<vec3, vec3>> branches;
-	myplant.process(iterations, branches);*/
-	/*for (int i = 0; i < iterations; i++)
-	{
-		  myplant.process(i, branches);
-	}*/
-
-
-
-
-
-	///////////////////////////////////////////////////////////////////////////////////
-
-
-	// Now that you have all the branches ,which is the start and end point of each point ,its time to render 
-	// these branches into Houdini 
-    
-
-	// PUT YOUR CODE HERE
-	// Declare all the necessary variables for drawing cylinders for each branch 
-    float		 rad, tx, ty, tz;
-    int			 divisions, plane;
-    int			 xcoord =0, ycoord = 1, zcoord =2;
-    float		 tmp;
-    UT_Vector4		 pos;
-    GU_PrimPoly		*poly;
-	GU_PrimPoly		*poly2;
-    int			 i;
+	// Declare all the necessary variables
     UT_Interrupt	*boss;
-	vec3 start, end;
-
-    // Since we don't have inputs, we don't need to lock them.
-
-    divisions  = 5;	// We need twice our divisions of points
-    myTotalPoints = divisions;		// Set the NPT local variable value
-    myCurrPoint   = 0;			// Initialize the PT local variable
-
-
 
     // Check to see that there hasn't been a critical error in cooking the SOP.
     if (error() < UT_ERROR_ABORT)
     {
-	boss = UTgetInterrupt();
-	if (divisions < 4)
-	{
-	    // With the range restriction we have on the divisions, this
-	    //	is actually impossible, but it shows how to add an error
-	    //	message or warning to the SOP.
-	    addWarning(SOP_MESSAGE, "Invalid divisions");
-	    divisions = 4;
-	}
-	gdp->clearAndDestroy();
+		boss = UTgetInterrupt();
+		gdp->clearAndDestroy();
 
-	// Start the interrupt server
-	if (boss->opStart("Running BreakingPoint"))
-	{
-        // PUT YOUR CODE HERE
-	    // Build a polygon
-	    // You need to build your cylinders inside Houdini from here
-		// TIPS:
-		// Use GU_PrimPoly poly = GU_PrimPoly::build(see what values it can take)
-		// Also use GA_Offset ptoff = poly->getPointOffset()
-		// and gdp->setPos3(ptoff,YOUR_POSITION_VECTOR) to build geometry.
-		std::vector<GA_Offset> ptoffs;
-		int offset = 0;
-		for (int i = 0; i < meshes.size(); i++) {
-			std::cout << "offset: " << offset << std::endl;
-			Points points = meshes[i].first;
-			Faces faces = meshes[i].second;
-			for (int j = 0; j < points.size(); j++) {
-				std::vector<double> p = points[j];
-				GA_Offset ptoff = gdp->appendPointOffset();
-				gdp->setPos3(ptoff, UT_Vector3(p[0], p[1], p[2]));
-				std::cout <<"ptoff: " << ptoff << std::endl;
-				ptoffs.push_back(ptoff);
-			}
-			for (int j = 0; j < faces.size(); j++) {
-				GU_PrimPoly *tripoly = GU_PrimPoly::build(gdp, 3, GU_POLY_CLOSED);
-				for (int idx = 0; idx < 3; idx++) {
-					tripoly->setPointOffset(idx, ptoffs[faces[j][idx] + offset]);
+		// Start the interrupt server
+		if (boss->opStart("Running BreakingPoint"))
+		{
+			// PUT YOUR CODE HERE
+			// Build a polygon
+			// You need to build your cylinders inside Houdini from here
+			// TIPS:
+			// Use GU_PrimPoly poly = GU_PrimPoly::build(see what values it can take)
+			// Also use GA_Offset ptoff = poly->getPointOffset()
+			// and gdp->setPos3(ptoff,YOUR_POSITION_VECTOR) to build geometry.
+			std::vector<GA_Offset> ptoffs;
+			int offset = 0;
+			for (int i = 0; i < meshes.size(); i++) {
+				//std::cout << "offset: " << offset << std::endl;
+				Points points = meshes[i].first;
+				Faces faces = meshes[i].second;
+				for (int j = 0; j < points.size(); j++) {
+					std::vector<double> p = points[j];
+					GA_Offset ptoff = gdp->appendPointOffset();
+					gdp->setPos3(ptoff, UT_Vector3(p[0], p[1], p[2]));
+					//std::cout <<"ptoff: " << ptoff << std::endl;
+					ptoffs.push_back(ptoff);
 				}
+				for (int j = 0; j < faces.size(); j++) {
+					GU_PrimPoly *tripoly = GU_PrimPoly::build(gdp, 3, GU_POLY_CLOSED);
+					for (int idx = 0; idx < 3; idx++) {
+						tripoly->setPointOffset(idx, ptoffs[faces[j][idx] + offset]);
+					}
+				}
+				offset += points.size();
 			}
-			offset += points.size();
+			gdp->normal();
+			////////////////////////////////////////////////////////////////////////////////////////////
+
+			// Highlight the star which we have just generated.  This routine
+			// call clears any currently highlighted geometry, and then it
+			// highlights every primitive for this SOP. 
+			select(GU_SPrimitive);
 		}
-		gdp->normal();
 
-
-
-
-		////////////////////////////////////////////////////////////////////////////////////////////
-
-	    // Highlight the star which we have just generated.  This routine
-	    // call clears any currently highlighted geometry, and then it
-	    // highlights every primitive for this SOP. 
-	    select(GU_SPrimitive);
-	}
-
-	// Tell the interrupt server that we've completed. Must do this
-	// regardless of what opStart() returns.
-	boss->opEnd();
+		// Tell the interrupt server that we've completed. Must do this
+		// regardless of what opStart() returns.
+		boss->opEnd();
     }
 
-    myCurrPoint = -1;
     return error();
 }
-

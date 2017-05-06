@@ -168,6 +168,13 @@ std::vector<Geometry> testParse(std::string inputFile) {
 	return voroData;
 }
 
+void testWeb() {
+	int i;
+	double x, y, z;
+
+	container con(x_min, x_max, y_min, y_max, z_min, z_max, n_x, n_y, n_z, false, false, false, 8);
+}
+
 void testVoro() {
 	int i;
 	double x, y, z;
@@ -201,15 +208,77 @@ void testVoro() {
 	con.draw_cells_gnuplot("random_points_v.gnu");
 }
 
-
+void crashTest() {
+	while (true) {
+		Eigen::MatrixXd VA, VB, VC;
+		Eigen::MatrixXi FA, FB, FC;
+		std::vector<std::vector<float>> isectPoints, voroCellPoints;
+		std::vector<std::vector<int>> isectFaces, voroCellFaces;
+		isectPoints.push_back({ -0.5f, -0.5f, -0.5f });
+		isectPoints.push_back({ 0.5f, -0.5f, -0.5f });
+		isectPoints.push_back({ 0.5f, -0.5f, 0.5f });
+		isectPoints.push_back({ -0.5f, -0.5f, 0.5f });
+		isectPoints.push_back({ -0.5f, 0.5f, -0.5f });
+		isectPoints.push_back({ 0.5f, 0.5f, -0.5f });
+		isectPoints.push_back({ 0.5f, 0.5f, 0.5f });
+		isectPoints.push_back({ -0.5f, 0.5f, 0.5f });
+		isectFaces.push_back({ 1, 4, 5 });
+		isectFaces.push_back({ 1, 0, 4 });
+		isectFaces.push_back({ 2, 5, 6 });
+		isectFaces.push_back({ 2, 1, 5 });
+		isectFaces.push_back({ 3, 6, 7 });
+		isectFaces.push_back({ 3, 2, 6 });
+		isectFaces.push_back({ 0, 7, 4 });
+		isectFaces.push_back({ 0, 3, 7 });
+		isectFaces.push_back({ 2, 0, 1 });
+		isectFaces.push_back({ 2, 3, 0 });
+		isectFaces.push_back({ 5, 7, 6 });
+		isectFaces.push_back({ 5, 4, 7 });
+		voroCellPoints.push_back({ 1.0f, -1.0f, 0.725658f });
+		voroCellPoints.push_back({ 1.0f, -1.0f, 0.929351f });
+		voroCellPoints.push_back({ 1.0f, -0.0699225f, -0.5f });
+		voroCellPoints.push_back({ 1.0f, 1.0f, -0.5f });
+		voroCellPoints.push_back({ 1.0f, 0.123664f, 1.5f });
+		voroCellPoints.push_back({ 0.459069f, 1.0f, 1.5f });
+		voroCellPoints.push_back({ -0.699994f, 1.0f, 0.546395f });
+		voroCellPoints.push_back({ 1.0f, 1.0f, 1.5f });
+		voroCellPoints.push_back({ -0.776867f, 1.0f, -0.337976f });
+		voroCellPoints.push_back({ -0.593725f, 1.0f, -0.5f });
+		voroCellPoints.push_back({ 0.0300697f, -0.204453f, 0.535369f });
+		voroCellPoints.push_back({ 0.880702f, -1.0f, 0.8312f });
+		voroCellFaces.push_back({ 1, 10, 11 });
+		voroCellFaces.push_back({ 1, 6, 10 });
+		voroCellFaces.push_back({ 1, 5, 6 });
+		voroCellFaces.push_back({ 1, 4, 5 });
+		voroCellFaces.push_back({ 1, 11, 0 });
+		voroCellFaces.push_back({ 1, 7, 4 });
+		voroCellFaces.push_back({ 1, 3, 7 });
+		voroCellFaces.push_back({ 1, 2, 3 });
+		voroCellFaces.push_back({ 1, 0, 2 });
+		voroCellFaces.push_back({ 2, 8, 9 });
+		voroCellFaces.push_back({ 2, 10, 8 });
+		voroCellFaces.push_back({ 2, 11, 10 });
+		voroCellFaces.push_back({ 2, 0, 11 });
+		voroCellFaces.push_back({ 2, 9, 3 });
+		voroCellFaces.push_back({ 3, 5, 7 });
+		voroCellFaces.push_back({ 3, 6, 5 });
+		voroCellFaces.push_back({ 3, 8, 6 });
+		voroCellFaces.push_back({ 3, 9, 8 });
+		voroCellFaces.push_back({ 4, 7, 5 });
+		voroCellFaces.push_back({ 6, 8, 10 });
+		igl::list_to_matrix(isectPoints, VA);
+		igl::list_to_matrix(isectFaces, FA);
+		igl::list_to_matrix(voroCellPoints, VB);
+		igl::list_to_matrix(voroCellFaces, FB);
+		igl::MeshBooleanType boolean_type(igl::MESH_BOOLEAN_TYPE_INTERSECT);
+		igl::copyleft::cgal::mesh_boolean(VA, FA, VB, FB, boolean_type, VC, FC);
+		std::cout << "VC: " << VC << std::endl;
+		std::cout << "FC: " << FC << std::endl;
+		int i;
+		std::cin >> i;
+	}
+}
 
 int main() {
-	buildCube(0.0, "cube1.txt");
-	std::vector<Geometry> voroData1 = testParse("cube1.txt");
-	buildCube(0.3, "cube2.txt");
-	std::vector<Geometry> voroData2 = testParse("cube2.txt");
-	std::vector<Geometry> voroData;
-	voroData.push_back(voroData1[0]);
-	voroData.push_back(voroData2[0]);
-	testBoolean(voroData);
+	crashTest();
 }

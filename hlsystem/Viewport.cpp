@@ -60,21 +60,21 @@ Geometry Viewport::testIntersect(GEO_Detail* collision, UT_Vector3 & intersect)
 		// entries() - number of polygons
 		GEO_PrimList primlist = collision->primitives();
 		int numPolys = primlist.entries();
-		std::cout << "Entries: " << numPolys << std::endl;
+		//std::cout << "Entries: " << numPolys << std::endl;
 		for (GA_Offset ptoff : collision->getPointRange()) {
-			std::cout << "Point " << collision->pointIndex(ptoff) << " pos " << collision->getPos3(ptoff) << "\n";
+			//std::cout << "Point " << collision->pointIndex(ptoff) << " pos " << collision->getPos3(ptoff) << "\n";
 			std::vector<double> vertex = { collision->getPos3(ptoff)[0],collision->getPos3(ptoff)[1],collision->getPos3(ptoff)[2] };
 			vertices.push_back(vertex);
 		}
 		for (GA_Offset primoff : collision->getPrimitiveRange()) {
 			std::vector<int> face_idx;
-			std::cout << "Primitive " << collision->primitiveIndex(primoff) << ": ";
+			//std::cout << "Primitive " << collision->primitiveIndex(primoff) << ": ";
 			const GEO_Primitive* face = collision->getGEOPrimitive(primoff);
 			for (GA_Offset ptoff : face->getPointRange()) {
 				face_idx.push_back(collision->pointIndex(ptoff));
-				std::cout << collision->pointIndex(ptoff) << " ";
+				//std::cout << collision->pointIndex(ptoff) << " ";
 			}
-			std::cout << "\n";
+			//std::cout << "\n";
 			faces.push_back(face_idx);
 		}
 
@@ -84,7 +84,7 @@ Geometry Viewport::testIntersect(GEO_Detail* collision, UT_Vector3 & intersect)
 
 		}
 		}*/
-		std::cout << "TEST" << std::endl;
+		//std::cout << "TEST" << std::endl;
 		myCollision = new GU_RayIntersect;
 		myCollision->init((GU_Detail*)collision);
 		UT_Vector3 org(0, 0, 5);
@@ -112,11 +112,11 @@ Geometry Viewport::testIntersect(GEO_Detail* collision, UT_Vector3 & intersect)
 		GEO_Detail * geo = primList(0)->getPrim()->getParent();
 		if (numHit > 0)
 		{
-			std::cout << "numHit " << numHit << std::endl;
+			//std::cout << "numHit " << numHit << std::endl;
 			fpreal min_t = 100000000.0;
 			for (int i = 0; i < numHit; i++) {
 				fpreal t;
-				std::cout << i << std::endl;
+				//std::cout << i << std::endl;
 				t = (*info.myHitList)(i).t;
 				if (t < min_t) min_t = t;
 			}

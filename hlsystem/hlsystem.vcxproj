@@ -268,7 +268,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
       <TargetMachine>MachineX64</TargetMachine>
-      <OutputFile>$(CUSTOM_DSO_PATH)\$(ProjectName)_$(Configuration).dll</OutputFile>
+      <OutputFile>$(CUSTOM_DSO_PATH)\$(ProjectName).dll</OutputFile>
       <AdditionalDependencies>voro++.lib;libgmp-10.lib;libmpfr-4.lib;CGAL_Core-vc140-mt-4.9.lib;CGAL_ImageIO-vc140-mt-4.9.lib;CGAL-vc140-mt-4.9.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
