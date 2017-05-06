@@ -114,7 +114,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="booleanops.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="voronoi.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="booleanops.h" />
+    <ClInclude Include="voronoi.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
