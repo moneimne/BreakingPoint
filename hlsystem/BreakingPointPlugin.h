@@ -59,10 +59,9 @@ private:
 	// constantly update the cook function, these functions help you get the current value that the node has
 	// Example : To declare a function to fetch angle you need to do it this way 
 	// fpreal  ANGLE(fpreal t)     { return evalFloat("angle", 0, t); }
-	fpreal FORCE(fpreal t) { return evalFloat("force", 0, t); }
 	int PIECES(fpreal t) { return evalInt("pieces", 0, t); }
 	fpreal SCALE(fpreal t) { return evalFloat("scale", 0, t); }
-
+	fpreal CHOICE(fpreal t) { return evalFloat("choice", 0, t); }
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /// Member variables are stored in the actual SOP, not with the geometry
