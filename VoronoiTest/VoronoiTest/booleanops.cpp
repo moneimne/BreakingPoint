@@ -46,3 +46,18 @@ Geometry BooleanOps::testBoolean(Geometry isectObject, Geometry voroCell, igl::M
 	//std::cout << outputPoints.size() << ", " << outputFaces.size() << std::endl;
 	return Geometry(outputPoints, outputFaces);
 }
+
+Geometry BooleanOps::testBooleanOff(Geometry voroCell, Eigen::MatrixXd VA, Eigen::MatrixXi FA, igl::MeshBooleanType boolType) {
+	Eigen::MatrixXd VB, VC;
+	Eigen::MatrixXi FB, FC;
+	igl::list_to_matrix(voroCell.first, VB);
+	igl::list_to_matrix(voroCell.second, FB);
+	if (!igl::copyleft::cgal::mesh_boolean(VA, FA, VB, FB, boolType, VC, FC)) {
+		return Geometry();
+	}
+	Points outputPoints;
+	Faces outputFaces;
+	igl::matrix_to_list(VC, outputPoints);
+	igl::matrix_to_list(FC, outputFaces);
+	return Geometry(outputPoints, outputFaces);
+}

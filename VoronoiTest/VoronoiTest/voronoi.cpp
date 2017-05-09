@@ -47,13 +47,32 @@ void Voronoi::testWeb(int numSeeds, std::vector<float> offset, float scale, std:
 
 	container con(x_min, x_max, y_min, y_max, z_min, z_max, n_x, n_y, n_z, false, false, false, 8);
 
-	for (i = 0; i < numSeeds; i++) {
+	/*for (i = 0; i < numSeeds - 10; i++) {
+		float r = rnd() * (x_max - x_min) / 5.0;
+		float theta = rnd() * 360.0;
+		x = r * cos(theta);
+		y = r * sin(theta);
+		z = 0.0;
+		con.put(i, x, y, z);
+	}
+	for (i = numSeeds - 10; i < numSeeds; i++) {
 		float r = rnd() * (x_max - x_min) / 2.0;
 		float theta = rnd() * 360.0;
 		x = r * cos(theta);
 		y = r * sin(theta);
 		z = 0.0;
 		con.put(i, x, y, z);
+	}*/
+	float r = 0.03125f;
+	for (i = 0; i < 4; i++) {
+		r = r * 2.0f;
+		for (int j = 0; j < 20; j++) {
+			float theta = 30.0f * j + rnd();
+			x = r * cos(theta);
+			y = r * sin(theta);
+			z = 0.0;
+			con.put(j + i*12, x, y, z);
+		}
 	}
 
 	con.print_custom("%w\n%P\n%s\n%t", "web.txt");
