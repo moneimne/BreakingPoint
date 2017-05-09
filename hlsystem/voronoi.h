@@ -10,6 +10,6 @@ class Voronoi {
 public:
 	static void createVoronoiFile(int numSeeds, std::vector<float> offset, float scale, std::string outputFileName);
 
-	static std::vector<Geometry> parseVoronoi(std::string voronoiFile);
-	static void triangulateFaces(Faces &trifaceData, const Faces &faceData);
+	static std::vector<Geometry> parseVoronoi(std::string voronoiFile, bool flip);
+	static void triangulateFaces(Faces &trifaceData, const Faces &faceData, bool flip);
 };

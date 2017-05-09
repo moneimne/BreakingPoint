@@ -62,6 +62,12 @@ private:
 	int PIECES(fpreal t) { return evalInt("pieces", 0, t); }
 	fpreal SCALE(fpreal t) { return evalFloat("scale", 0, t); }
 	fpreal CHOICE(fpreal t) { return evalFloat("choice", 0, t); }
+	fpreal ORIX(fpreal t) { return evalFloat("origin", 0, t); }
+	fpreal ORIY(fpreal t) { return evalFloat("origin", 1, t); }
+	fpreal ORIZ(fpreal t) { return evalFloat("origin", 2, t); }
+	fpreal DIRX(fpreal t) { return evalFloat("direction", 0, t); }
+	fpreal DIRY(fpreal t) { return evalFloat("direction", 1, t); }
+	fpreal DIRZ(fpreal t) { return evalFloat("direction", 2, t); }
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /// Member variables are stored in the actual SOP, not with the geometry

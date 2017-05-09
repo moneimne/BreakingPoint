@@ -43,7 +43,7 @@ void Viewport::createRay()
 
 }
 
-Geometry Viewport::testIntersect(GEO_Detail* collision, UT_Vector3 & intersect)
+Geometry Viewport::testIntersect(GEO_Detail* collision, UT_Vector3 & intersect, UT_Vector3 org, UT_Vector3 dir)
 {
 	MatrixXd m(2, 2);
 	m(0, 0) = 3;
@@ -87,8 +87,6 @@ Geometry Viewport::testIntersect(GEO_Detail* collision, UT_Vector3 & intersect)
 		//std::cout << "TEST" << std::endl;
 		myCollision = new GU_RayIntersect;
 		myCollision->init((GU_Detail*)collision);
-		UT_Vector3 org(0, 0, 5);
-		UT_Vector3 dir(0, 0, -1);
 		UT_Vector3 pos;
 		GU_Ray ray(org, dir);
 		GU_RayInfo info;
@@ -124,8 +122,8 @@ Geometry Viewport::testIntersect(GEO_Detail* collision, UT_Vector3 & intersect)
 			intersect = isect;
 		}
 	}
-	Faces trifaces;
-	Voronoi::triangulateFaces(trifaces,faces);
+	Faces trifaces;	
+	Voronoi::triangulateFaces(trifaces,faces,true);
 	return Geometry(vertices, trifaces);
 
 }
