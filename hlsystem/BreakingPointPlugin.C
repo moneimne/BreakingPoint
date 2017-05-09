@@ -60,6 +60,8 @@ newSopOperator(OP_OperatorTable *table)
 //static PRM_Name		angleName("angle", "Angle");
 static PRM_Name piecesName("pieces", "Number of Pieces");
 static PRM_Name scaleName("scale", "Voronoi Scale");
+static PRM_Name oriName("origin", "Fracture Origin");
+static PRM_Name dirName("direction", "Fracture Direction");
 
 
 static PRM_Name         sopOrdinalName("choice", "Fracture Type");
@@ -86,6 +88,7 @@ static PRM_Default piecesDefault(4);
 static PRM_Range piecesRange(PRM_RANGE_UI, 4, PRM_RANGE_UI, 20);
 static PRM_Default scaleDefault(1.0);
 static PRM_Range scaleRange(PRM_RANGE_UI, 1.0, PRM_RANGE_UI, 50.0);
+static PRM_Default oriDefault(0.0);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -100,6 +103,8 @@ SOP_BreakingPoint::myTemplateList[] = {
 		PRM_Template(PRM_INT, PRM_Template::PRM_EXPORT_MIN, 1, &piecesName, &piecesDefault, 0, &piecesRange),
 		PRM_Template(PRM_FLT, PRM_Template::PRM_EXPORT_MIN, 1, &scaleName, &scaleDefault, 0, &scaleRange),
 		PRM_Template(PRM_ORD,    1, &sopOrdinalName, 0, &sopOrdinalMenu),
+		PRM_Template(PRM_XYZ, 3, &oriName),
+		PRM_Template(PRM_XYZ, 3, &dirName),
 		/////////////////////////////////////////////////////////////////////////////////////////////
 
     PRM_Template()
@@ -178,44 +183,59 @@ SOP_BreakingPoint::cookMySop(OP_Context &context)
 	int pieces = PIECES(now);
 	float scale = SCALE(now);
 	int choice = CHOICE(now);
+	float orix = ORIX(now);
+	float oriy = ORIY(now);
+	float oriz = ORIZ(now);
 
-	std::cout << "choice: " << choice << std::endl;
+	float dirx = DIRX(now);
+	float diry = DIRY(now);
+	float dirz = DIRZ(now);
+
+	UT_Vector3 origin(orix, oriy, oriz);
+	UT_Vector3 direction(dirx, diry, dirz);
+
+	std::cout << "ori: " << origin << std::endl;
+	std::cout << "dir: " << direction << std::endl;
+
+	std::vector<Geometry> meshes;
+
+	OP_AutoLockInputs inputs(this);
+	if (inputs.lock(context) >= UT_ERROR_ABORT)
+		return error();
 
 	if (choice == 0) {
 		std::cout << "hi" << std::endl;
-		UT_Interrupt	*boss;
 
 		// Check to see that there hasn't been a critical error in cooking the SOP.
-		if (error() < UT_ERROR_ABORT)
-		{
-			boss = UTgetInterrupt();
-			gdp->clearAndDestroy();
+
+		std::vector<Geometry> voroData = Voronoi::parseVoronoi("webFracture.txt", true);
+		std::cout << "success??\n";
+		for (int i = 0; i < voroData.size(); i++) {
+				meshes.push_back(voroData.at(i));
 		}
+		std::cout << "success?\n";
+
 	}
 
 	if (choice == 1) {
 
 		Viewport vp;
-		OP_AutoLockInputs inputs(this);
-		if (inputs.lock(context) >= UT_ERROR_ABORT)
-			return error();
 		//const GU_Detail *collision = inputGeo(0, context);
 		GU_Detail * collision;
 		duplicateSource(0, context);
 		UT_Vector3 isect;
-		Geometry cube = vp.testIntersect(gdp, isect);
+		Geometry cube = vp.testIntersect(gdp, isect, origin, direction);
 		//std::cout << "it worked?" << std::endl;
 		//std::cout << "x: " << isect[0] << " y: " << isect[1] << " z: " << isect[2] << std::endl;
-		std::vector<Geometry> meshes;
 		//meshes.push_back(cube);
 
 		std::vector<float> isectVector = { isect[0], isect[1], isect[2] };
 		Voronoi::createVoronoiFile(pieces, isectVector, scale, "voronoiOutput.txt");
-		std::vector<Geometry> voroData = Voronoi::parseVoronoi("voronoiOutput.txt");
+		std::vector<Geometry> voroData = Voronoi::parseVoronoi("voronoiOutput.txt", true);
 		std::vector<Geometry> splitMesh = std::vector<Geometry>();
 		for (int i = 0; i < voroData.size(); i++) {
 			igl::MeshBooleanType boolean_type(igl::MESH_BOOLEAN_TYPE_INTERSECT);
-			//std::cout << "entering testBoolean\n";
+			std::cout << "entering testBoolean\n";
 			Geometry outputGeometry = BooleanOps::testBoolean(cube, voroData.at(i), boolean_type);
 			//std::cout << "Reached here\n";
 			//std::cout << outputGeometry.first.size() << ", " << outputGeometry.second.size() << std::endl;
@@ -224,6 +244,20 @@ SOP_BreakingPoint::cookMySop(OP_Context &context)
 				meshes.push_back(outputGeometry);
 			}
 		}
+		if (scale < 0.5) {
+			Voronoi::createVoronoiFile(1, isectVector, scale, "voronoiBoundsOutput.txt");
+			std::vector<Geometry> voroBoundsData = Voronoi::parseVoronoi("voronoiBoundsOutput.txt", true);
+			igl::MeshBooleanType booleanSub_type(igl::MESH_BOOLEAN_TYPE_MINUS);
+			std::cout << "subtract\n";
+			Geometry outputGeometry = BooleanOps::testBoolean(cube, voroBoundsData.at(0), booleanSub_type);
+			if (outputGeometry.first.size() != 0 && outputGeometry.second.size() != 0) {
+				//std::cout << "pushing outputGeometry\n";
+				meshes.push_back(outputGeometry);
+			}
+			std::cout << "subtract success\n";
+		}
+	}
+
 		/*std::cout << "intersected everything\n";
 		Voronoi::createVoronoiFile(1, "cube.txt");
 		std::vector<Geometry> cubeData = Voronoi::parseVoronoi("cube.txt");
@@ -284,7 +318,6 @@ SOP_BreakingPoint::cookMySop(OP_Context &context)
 			// Tell the interrupt server that we've completed. Must do this
 			// regardless of what opStart() returns.
 			boss->opEnd();
-		}
 	}
 
     return error();

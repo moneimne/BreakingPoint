@@ -12,6 +12,6 @@ public:
 	~Viewport();
 	void handleMouseEvent(UI_Event *event);
 	void createRay();
-	Geometry testIntersect(GEO_Detail* collision, UT_Vector3 & intersect);
+	Geometry testIntersect(GEO_Detail* collision, UT_Vector3 & intersect, UT_Vector3 org, UT_Vector3 dir);
 };
 

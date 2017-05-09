@@ -19,45 +19,60 @@ void Voronoi::createVoronoiFile(int numSeeds, std::vector<float> offset, float s
 	container con(x_min, x_max, y_min, y_max, z_min, z_max, n_x, n_y, n_z,
 		false, false, false, 8);
 
-	// Randomly add particles into the container
-	float f = 0.2f;
-	for (i = 0; i < 4; i++) {
-		x = offset[0] + (f * scale * (-1 + (2 * rnd())));
-		y = offset[1] + (f * scale * (-1 + (2 * rnd())));
-		z = offset[2] + (f * scale * (-1 + (2 * rnd())));
-		con.put(i, x, y, z);
+	if (numSeeds == 1) {
+		x = offset[0];
+		y = offset[1];
+		z = offset[2];
+		con.put(0, x, y, z);
 	}
-	for (i = 4; i<numSeeds; i++) {
-		x = x_min + rnd()*(x_max - x_min);
-		y = y_min + rnd()*(y_max - y_min);
-		z = z_min + rnd()*(z_max - z_min);
-		con.put(i, x, y, z);
-	}
+	else {
 
+		// Randomly add particles into the container
+		float f = 0.2f;
+		for (i = 0; i < 4; i++) {
+			x = offset[0] + (f * scale * (-1 + (2 * rnd())));
+			y = offset[1] + (f * scale * (-1 + (2 * rnd())));
+			z = offset[2] + (f * scale * (-1 + (2 * rnd())));
+			con.put(i, x, y, z);
+		}
+		for (i = 4; i < numSeeds; i++) {
+			x = x_min + rnd()*(x_max - x_min);
+			y = y_min + rnd()*(y_max - y_min);
+			z = z_min + rnd()*(z_max - z_min);
+			con.put(i, x, y, z);
+		}
+	}
 	con.print_custom("%w\n%P\n%s\n%t", outputFileName.c_str());
 }
 
-void Voronoi::triangulateFaces(Faces &trifaceData, const Faces &faceData) {
+void Voronoi::triangulateFaces(Faces &trifaceData, const Faces &faceData, bool flip) {
 	for (int i = 0; i < faceData.size(); i++) {
 		for (int j = 0; j < faceData[i].size() - 2; j++) {
-			std::vector<int> tri = { faceData[i][0], faceData[i][j + 2],faceData[i][j + 1] };
-			trifaceData.push_back(tri);
+			if (flip) {
+				std::vector<int> tri = { faceData[i][0], faceData[i][j + 2],faceData[i][j + 1] };
+				trifaceData.push_back(tri);
+			}
+			else {
+				std::vector<int> tri = { faceData[i][0], faceData[i][j + 1],faceData[i][j + 2] };
+				trifaceData.push_back(tri);
+			}
 		}
 	}
 }
 
-std::vector<Geometry> Voronoi::parseVoronoi(std::string voronoiFile) {
+std::vector<Geometry> Voronoi::parseVoronoi(std::string voronoiFile, bool flip) {
 	std::vector<Geometry> voroData = std::vector<Geometry>();
-
+	std::cout << "before fopen\n";
 	FILE *voroFile = fopen(voronoiFile.c_str(), "r");
+	std::cout << "after fopen\n";
 	if (voroFile == NULL) {
 		printf("IOError: %s couldn't be opened.\n", voronoiFile.c_str());
 		return voroData;
 	}
 
-	char line[1000];
+	char line[100000];
 
-	fgets(line, 1000, voroFile);
+	fgets(line, 100000, voroFile);
 	while (true) {
 		// Get number of vertices
 		int numVertices;
@@ -65,7 +80,7 @@ std::vector<Geometry> Voronoi::parseVoronoi(std::string voronoiFile) {
 
 		// Get vertices
 		Points vertexData = Points();
-		fgets(line, 1000, voroFile);
+		fgets(line, 100000, voroFile);
 		int numChars = 0;
 		for (int i = 0; i < numVertices; i++) {
 			double x, y, z;
@@ -83,16 +98,16 @@ std::vector<Geometry> Voronoi::parseVoronoi(std::string voronoiFile) {
 
 		// Get number of faces
 		int numFaces;
-		fgets(line, 1000, voroFile);
+		fgets(line, 100000, voroFile);
 		sscanf(line, "%i", &numFaces);
 
 		// Get face indices
 		Faces faceData = Faces();
-		fgets(line, 1000, voroFile);
+		fgets(line, 100000, voroFile);
 		numChars = 0;
 		for (int i = 0; i < numFaces; i++) {
 			// Get face data
-			char face[1000];
+			char face[100000];
 			int numCharsRead;
 			sscanf(line + numChars, "%s %n", &face, &numCharsRead);
 			numChars += numCharsRead;
@@ -111,12 +126,12 @@ std::vector<Geometry> Voronoi::parseVoronoi(std::string voronoiFile) {
 			faceData.push_back(vertexIndices);
 		}
 		Faces trifaceData;
-		triangulateFaces(trifaceData, faceData);
+		triangulateFaces(trifaceData, faceData, flip);
 		Geometry pairData = Geometry(vertexData, trifaceData);
 		voroData.push_back(pairData);
 
 		// Termination
-		if (!fgets(line, 1000, voroFile)) {
+		if (!fgets(line, 100000, voroFile)) {
 			break;
 		}
 	}
