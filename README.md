@@ -1,5 +1,5 @@
 # BreakingPoint
-A real-time fracturing tool for Houdini.
+A real-time fracturing tool for Houdini by Mohamad Moneimne and Charles Wang.
 
 [Watch the full demo video here.](https://vimeo.com/229512570)
 
